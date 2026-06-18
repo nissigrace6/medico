@@ -43,7 +43,14 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Guard: Prevent infinite loops if refresh fails or requests fail repeatedly
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    // Also skip retry for auth endpoints (login, register, refresh, me) to prevent loops
+    const isAuthEndpoint = originalRequest.url?.includes('/api/auth/');
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       // If we are already refreshing, queue this request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

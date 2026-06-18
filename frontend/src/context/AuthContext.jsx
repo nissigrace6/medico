@@ -16,7 +16,11 @@ export const AuthProvider = ({ children }) => {
           setUser(res.data.user);
         } catch (error) {
           console.error('Session validation failed:', error.message);
-          logout();
+          // Silently clear stale credentials without making further API calls
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          setUser(null);
         }
       }
       setLoading(false);
